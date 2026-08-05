@@ -663,10 +663,10 @@ def reranking_algo(db, id_col, title_col, base_col, ce_model):
         "final_fit_with_weights_mean"
     ] = 0.0
 
-    db = db_temp.sort_values(["final_fit_with_weights_mean"], 
-                ascending=[False])
-
     db["rank"] = db["final_fit_with_weights_mean"].rank(ascending=False, method="min")
+
+    db = db_temp.sort_values(["rank"], 
+            ascending=[False])
     
     if good_input:
         ranking_history = update_ranking_history(change_counter, 
@@ -748,19 +748,20 @@ data = combine_similarity_scores(
     tfidf_weight=0.30
 )
 
-data = data.sort_values(
-    [
-        "final_base_score_mean",
-        "final_base_score_max"
-    ],
-    ascending=[False, False]
-)
+
 
 data["rank"] = data[
     "final_base_score_mean"
 ].rank(
     ascending=False,
     method="min"
+)
+
+data = data.sort_values(
+    [
+        "rank"
+    ],
+    ascending=False
 )
 
 data, initial_semantic_floor = (
@@ -808,5 +809,8 @@ initially_excluded = data.loc[
     ]
 ]
 
+only_value_and_rank = data.loc[:, ["job_title", "rank"]]
+
+only_value_and_rank.to_csv("only_value_and_rank.csv")
 print(initially_excluded)
 print(feedback_metrics_history)
