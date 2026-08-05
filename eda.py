@@ -3,8 +3,15 @@ import pandas as pd
 
 import re 
 from collections import Counter
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 from sklearn.feature_extraction.text import CountVectorizer
+
+nltk.download('stopwords')
+
+stop_words = set(stopwords.words('english'))
 
 talents_db = pd.read_csv("potential-talents - Aspiring human resources - seeking human resources.csv")
 # Note that all job titles must be standardized. There will be clear NLP done to 
@@ -51,6 +58,15 @@ df_counts = df_counts.sort_values(by='Count', ascending=False).reset_index(drop=
 print(df_counts[df_counts['Count'] > 10])
 # Note all cases of "aspiring" comes from peopple claiming "aspiring human resources"
 # and every cases of "human" and "resources" comes from "human resources"
+
+talents_db["job_title"] = talents_db["job_title"].apply(
+    lambda x: ' '.join([word for word in x.split() if word.lower() not in stop_words])
+)
+
+# Replace 500+ with 500
+
+talents_db["connection"] = talents_db['connection'].replace("500+ ", 500)
+
 
 print(talents_db["job_title"])
 
