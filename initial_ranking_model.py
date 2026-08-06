@@ -663,10 +663,10 @@ def reranking_algo(db, id_col, title_col, base_col, ce_model):
         "final_fit_with_weights_mean"
     ] = 0.0
 
-    db["rank"] = db["final_fit_with_weights_mean"].rank(ascending=False, method="min")
+    db_temp["rank"] = db_temp["final_fit_with_weights_mean"].rank(ascending=False, method="min")
 
     db = db_temp.sort_values(["rank"], 
-            ascending=[False])
+            ascending=[True])
     
     if good_input:
         ranking_history = update_ranking_history(change_counter, 
@@ -761,7 +761,7 @@ data = data.sort_values(
     [
         "rank"
     ],
-    ascending=False
+    ascending=True
 )
 
 data, initial_semantic_floor = (
@@ -809,7 +809,7 @@ initially_excluded = data.loc[
     ]
 ]
 
-only_value_and_rank = data.loc[:, ["job_title", "rank"]]
+only_value_and_rank = data.loc[:, ["id","job_title", "rank"]]
 
 only_value_and_rank.to_csv("only_value_and_rank.csv")
 print(initially_excluded)
