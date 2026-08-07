@@ -1,3 +1,0 @@
-Change Number,Good Feedback Count,Bad Feedback Count,Mean Good Model Rank,Mean Bad Model Rank,Good Recall@10,Good-Bad Pairwise Accuracy,Good-Bad Score Margin
-1,5,3,3.0,51.333333333333336,1.0,1.0,0.31679578444705164
-2,5,2,3.0,51.5,1.0,1.0,0.29920724723935055
