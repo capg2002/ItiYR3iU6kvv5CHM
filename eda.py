@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+
 import re 
 from collections import Counter
 import nltk
@@ -11,7 +14,33 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 nltk.download('stopwords')
 
+def clean_linkedin_location(location):
+    if pd.isna(location):
+        return None
+
+    location = str(location).strip()
+
+    # "Greater Boston Area" -> "Boston"
+    location = re.sub(
+        r"^Greater\s+",
+        "",
+        location,
+        flags=re.IGNORECASE
+    )
+
+    # "Houston, Texas Area" -> "Houston, Texas"
+    location = re.sub(
+        r"\s+Area$",
+        "",
+        location,
+        flags=re.IGNORECASE
+    )
+
+    return location
+
 stop_words = set(stopwords.words('english'))
+geolocator = Nominatim(user_agent="my_geo_standardizer")
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
 
 talents_db = pd.read_csv("potential-talents - Aspiring human resources - seeking human resources.csv")
 # Note that all job titles must be standardized. There will be clear NLP done to 
@@ -66,6 +95,53 @@ talents_db["job_title"] = talents_db["job_title"].apply(
 # Replace 500+ with 500
 
 talents_db["connection"] = talents_db['connection'].replace("500+ ", 500)
+
+talents_db["clean_location"] = talents_db["location"].apply(
+    clean_linkedin_location
+)
+
+unique_locations = talents_db["clean_location"].dropna().unique()
+
+location_mapping = {}
+
+total = len(unique_locations)
+
+for i, location in enumerate(unique_locations, start=1):
+
+    print(f"[{i}/{total}] Geocoding: {location}")
+
+    result = geocode(location)
+
+    if result:
+        location_mapping[location] = {
+            "address": result.address,
+            "latitude": result.latitude,
+            "longitude": result.longitude
+        }
+
+        print(f"    -> {result.address}")
+        print(f"    -> ({result.latitude}, {result.longitude})")
+
+    else:
+        location_mapping[location] = {
+            "address": None,
+            "latitude": None,
+            "longitude": None
+        }
+
+        print("    -> No match")
+
+talents_db["standard_address"] = talents_db["clean_location"].map(
+    lambda x: location_mapping[x]["address"]
+)
+
+talents_db["latitude"] = talents_db["clean_location"].map(
+    lambda x: location_mapping[x]["latitude"]
+)
+
+talents_db["longitude"] = talents_db["clean_location"].map(
+    lambda x: location_mapping[x]["longitude"]
+)
 
 
 print(talents_db["job_title"])
