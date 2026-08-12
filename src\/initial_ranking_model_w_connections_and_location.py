@@ -670,8 +670,8 @@ def reranking_algo(db, id_col, title_col, base_col, ce_model):
 
     # Incorporate number of connections as a small part of influence. Should be reviewed by HR.
 
-    db_temp["norm_connections"] = (db_temp["connections"]/500)
-    weighted_score += (0.05 * db_temp["norm_connections"])
+    db_temp["norm_connection"] = (db_temp["connection"]/500)
+    weighted_score += (0.05 * db_temp["norm_connection"])
     active_weight += 0.05
 
     # Adds weighted scores depending on what is/is not included in the user-entered requirements
