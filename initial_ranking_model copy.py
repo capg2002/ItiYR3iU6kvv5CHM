@@ -628,6 +628,7 @@ def reranking_algo(db, id_col, title_col, base_col, ce_model):
             ce_desc="ce_good",
             tfidf_desc="tfidf_good",
             output_desc="good",
+            dist_col= "location_score",
             ce_weight=0.70,
             tfidf_weight=0.30
         )
@@ -654,6 +655,7 @@ def reranking_algo(db, id_col, title_col, base_col, ce_model):
             ce_desc="ce_bad",
             tfidf_desc="tfidf_bad",
             output_desc="bad",
+            dist_col= "location_score",
             ce_weight=0.70,
             tfidf_weight=0.30
         )
@@ -871,5 +873,3 @@ only_value_and_rank.to_csv("only_value_and_rank.csv")
 
 # Prints all initially excluded entries
 print(initially_excluded)
-
-
